@@ -96,6 +96,11 @@ public class ProductContract {
         public final static String COLUMN_PRODUCT_PICTURE = "picture";
 
         /**
+         * Default file location for no-image
+         */
+        public static final String NO_IMAGE = "/storage/emulated/0/Download/no-image-icon-23500.jpg";
+
+        /**
          * Returns whether or not the given price is equal or bigger than 0
          */
         public static boolean isValidPrice(int price) {

@@ -18,6 +18,20 @@
     <string name="action_delete">Delete Product</string>
     <string name="action_order">Order Product</string>
     <string name="unknown_stock">Unkown Stock Qty</string>
+    <string name="editor_activity_title_new_product">Add New Product</string>
+    <string name="editor_activity_title_edit_product">Edit Product</string>
+    <string name="editor_insert_product_failed">Insert Product Failed</string>
+    <string name="editor_insert_product_successful">Insertion Successful</string>
+    <string name="editor_update_product_failed">Update Failed</string>
+    <string name="editor_update_product_successful">Update Successful</string>
+    <string name="unsaved_changes_dialog_msg">Discard Changes and quit Editing?</string>
+    <string name="discard">Discard</string>
+    <string name="keep_editing">Keep Editing</string>
+    <string name="delete_dialog_msg">Delete this Product?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="editor_delete_product_failed">Error with deleting Product</string>
+    <string name="editor_delete_product_successful">Product Deleted</string>
 
 
 </resources>

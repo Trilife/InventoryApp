@@ -19,12 +19,16 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
+import com.example.android.inventoryapp.data.ProductDbHelper;
+
 
 /**
  * Displays list of products that were entered and stored in the app.
  */
 public class CatalogActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
+
+    public static final String LOG_TAG = CatalogActivity.class.getSimpleName();
 
     /** Identifier for the product data loader */
     private static final int PRODUCT_LOADER = 0;
@@ -54,6 +58,10 @@ public class CatalogActivity extends AppCompatActivity implements
         View emptyView = findViewById(R.id.empty_view);
         productListView.setEmptyView(emptyView);
 
+        /**
+         * Listen for the ADD NEW PRODUCT Floating button
+         */
+
         // Setup an Adapter to create a list item for each row of product data in the Cursor.
         // There is no product data yet (until the loader finishes) so pass in null for the Cursor.
         mCursorAdapter = new ProductCursorAdapter(this, null);
@@ -64,6 +72,8 @@ public class CatalogActivity extends AppCompatActivity implements
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 // Create new intent to go to {@link EditorActivity}
+                Log.v(LOG_TAG, "Touched the list item");
+
                 Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
 
                 // Form the content URI that represents the specific product that was clicked on,
@@ -86,16 +96,17 @@ public class CatalogActivity extends AppCompatActivity implements
     }
 
     /**
-     * Helper method to insert hardcoded product data into the database. For debugging purposes only.
+     * TEMPORARY Helper method to insert hardcoded product data into the database.
      */
     private void insertProduct() {
+
         // Create a ContentValues object where column names are the keys,
         // and Toto's product attributes are the values.
         ContentValues values = new ContentValues();
         values.put(ProductEntry.COLUMN_PRODUCT_NAME, "Test Product");
         values.put(ProductEntry.COLUMN_PRODUCT_STOCK, 10);
         values.put(ProductEntry.COLUMN_PRODUCT_PRICE, 499);
-        values.put(ProductEntry.COLUMN_PRODUCT_PICTURE, "test picture");
+        values.put(ProductEntry.COLUMN_PRODUCT_PICTURE, ProductEntry.NO_IMAGE);
 
         // Insert a new row for Toto into the provider using the ContentResolver.
         // Use the {@link ProductEntry#CONTENT_URI} to indicate that we want to insert
@@ -105,11 +116,11 @@ public class CatalogActivity extends AppCompatActivity implements
     }
 
     /**
-     * Helper method to delete all products in the database.
+     * TEMPORARY Helper method to delete all products in the database.
      */
     private void deleteAllProducts() {
         int rowsDeleted = getContentResolver().delete(ProductEntry.CONTENT_URI, null, null);
-        Log.v("CatalogActivity", rowsDeleted + " rows deleted from product database");
+        Log.v("CatalogActivity", rowsDeleted + "rows deleted from product database");
     }
 
     @Override
@@ -136,13 +147,21 @@ public class CatalogActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Display the items in the List_item
+     * @param i
+     * @param bundle
+     * @return
+     */
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         // Define a projection that specifies the columns from the table we care about.
         String[] projection = {
                 ProductEntry._ID,
                 ProductEntry.COLUMN_PRODUCT_NAME,
-                ProductEntry.COLUMN_PRODUCT_BREED };
+                ProductEntry.COLUMN_PRODUCT_STOCK,
+                ProductEntry.COLUMN_PRODUCT_PRICE,
+                ProductEntry.COLUMN_PRODUCT_PICTURE};
 
         // This loader will execute the ContentProvider's query method on a background thread
         return new CursorLoader(this,   // Parent activity context

@@ -2,7 +2,10 @@ package com.example.android.inventoryapp;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,13 +14,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.inventoryapp.data.ProductContract;
+import com.example.android.inventoryapp.data.ProductDbHelper;
+
+import java.io.File;
+
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
+import static android.provider.CalendarContract.CalendarCache.URI;
 
 /**
  * {@link ProductCursorAdapter} is an adapter for a list or grid view
  * that uses a {@link Cursor} of product data as its data source. This adapter knows
  * how to create list items for each row of product data in the {@link Cursor}.
  */
+
+
 public class ProductCursorAdapter extends CursorAdapter {
+    public static final String LOG_TAG = ProductCursorAdapter.class.getSimpleName();
 
     /**
      * Constructs a new {@link ProductCursorAdapter}.
@@ -28,6 +40,7 @@ public class ProductCursorAdapter extends CursorAdapter {
     public ProductCursorAdapter(Context context, Cursor c) {
         super(context, c, 0 /* flags */);
     }
+
 
     /**
      * Makes a new blank list item view. No data is set (or bound) to the views yet.
@@ -74,8 +87,10 @@ public class ProductCursorAdapter extends CursorAdapter {
         //TODO these were all Strings... with getString
         int productStock = cursor.getInt(stockColumnIndex);
         int productPrice = cursor.getInt(priceColumnIndex);
-        int productPicture = cursor.getInt(pictureColumnIndex);
+        String productPicture = cursor.getString(pictureColumnIndex);
 
+        Log.v(LOG_TAG, "productPicture: " + productPicture);
+        Log.v(LOG_TAG, "Picture URI: " + Uri.parse(new File(productPicture).toString()));
 
         //TODO this is where we would test for eventual discrepancies
         // If the product breed is empty string or null, then use some default text
@@ -86,9 +101,10 @@ public class ProductCursorAdapter extends CursorAdapter {
 
         // Update the TextViews with the attributes for the current product
         nameTextView.setText(productName);
-        stockTextView.setText(productStock);
-        priceTextView.setText(productPrice);
-        pictureImageView.setImageResource(productPicture);
+        stockTextView.setText(Integer.toString(productStock));
+        priceTextView.setText(Integer.toString(productPrice));
+        pictureImageView.setImageURI(Uri.parse(new File(productPicture).toString()));
+        //pictureImageView.setImageResource(productPicture);
     }
 }
 
