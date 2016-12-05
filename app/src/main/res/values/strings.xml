@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Inventory App</string>
+    <string name="empty_view_title_text">No Products in Stock</string>
+    <string name="empty_view_subtitle_text">Please push Button to add a Product</string>
+    <string name="product_supplier">Supplier</string>
+    <string name="product_detail">Product</string>
+    <string name="category_supplier">Supplier</string>
+    <string name="hint_supplier_name">Enter Supplier Name</string>
+    <string name="hint_supplier_email">Enter Supplier Email</string>
+    <string name="hint_product_name">Enter Product Name</string>
+    <string name="hint_product_price">Enter Product Price</string>
+    <string name="hint_product_stock">Enter Initial Stock Quantity</string>
+    <string name="action_reduce_stock">Reduce Stock</string>
+    <string name="action_increase_stock">Increase Stock</string>
+    <string name="action_save">Save</string>
+    <string name="action_insert_dummy_data">Insert Dummy Data</string>
+    <string name="action_delete_all_entries">Delete All Entries</string>
+    <string name="action_delete">Delete Product</string>
+    <string name="action_order">Order Product</string>
+    <string name="unknown_stock">Unkown Stock Qty</string>
+
+
+</resources>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout for the editor -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".EditorActivity">
+
+    <ImageView
+        android:id="@+id/picture"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        tools:src="@mipmap/ic_launcher"/>
+
+    <!-- Product category -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Label -->
+        <TextView
+            android:text="@string/product_detail"
+            android:padding="@dimen/activity_horizontal_margin"
+            style="@style/CategoryStyle" />
+
+        <!-- Input fields -->
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:paddingLeft="4dp"
+            android:orientation="vertical">
+
+            <!-- Name field -->
+            <EditText
+                android:id="@+id/edit_product_name"
+                android:hint="@string/hint_product_name"
+                android:inputType="textCapWords"
+                style="@style/EditorFieldStyle" />
+
+            <!-- Price field -->
+            <EditText
+                android:id="@+id/edit_product_price"
+                android:hint="@string/hint_product_price"
+                android:inputType="numberDecimal"
+                style="@style/EditorFieldStyle" />
+
+            <!-- Stock field -->
+            <EditText
+                android:id="@+id/edit_product_stock"
+                android:hint="@string/hint_product_stock"
+                android:inputType="number"
+                style="@style/EditorFieldStyle" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Interaction Buttons category -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/stock_decrease"
+            android:text="@string/action_reduce_stock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/stock_increase"
+            android:text="@string/action_increase_stock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+</LinearLayout>
