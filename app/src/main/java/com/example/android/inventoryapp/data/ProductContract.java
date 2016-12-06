@@ -98,7 +98,7 @@ public class ProductContract {
         /**
          * Default file location for no-image
          */
-        public static final String NO_IMAGE = "/storage/emulated/0/Download/no-image-icon-23500.jpg";
+        public static final String NO_IMAGE = "file://storage/emulated/0/Download/no-image-icon-23500.jpg";
 
         /**
          * Returns whether or not the given price is equal or bigger than 0

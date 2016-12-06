@@ -3,6 +3,8 @@ package com.example.android.inventoryapp;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
@@ -73,7 +75,7 @@ public class ProductCursorAdapter extends CursorAdapter {
         TextView nameTextView = (TextView) view.findViewById(R.id.name);
         TextView stockTextView = (TextView) view.findViewById(R.id.stock);
         TextView priceTextView = (TextView) view.findViewById(R.id.price);
-        ImageView pictureImageView = (ImageView) view.findViewById(R.id.picture);
+        ImageView pictureImageView = (ImageView) view.findViewById(R.id.edit_product_picture);
 
         // Find the columns of product attributes that we're interested in
         int nameColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME);
@@ -89,6 +91,8 @@ public class ProductCursorAdapter extends CursorAdapter {
         int productPrice = cursor.getInt(priceColumnIndex);
         String productPicture = cursor.getString(pictureColumnIndex);
 
+
+
         Log.v(LOG_TAG, "productPicture: " + productPicture);
         Log.v(LOG_TAG, "Picture URI: " + Uri.parse(new File(productPicture).toString()));
 
@@ -103,7 +107,12 @@ public class ProductCursorAdapter extends CursorAdapter {
         nameTextView.setText(productName);
         stockTextView.setText(Integer.toString(productStock));
         priceTextView.setText(Integer.toString(productPrice));
-        pictureImageView.setImageURI(Uri.parse(new File(productPicture).toString()));
+        File pictureFile = new File(productPicture);
+        if (pictureFile.exists()){
+            Bitmap myBitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath());
+            pictureImageView.setImageBitmap(myBitmap);
+        }
+        //pictureImageView.setImageURI(Uri.parse(new File(productPicture).toString()));
         //pictureImageView.setImageResource(productPicture);
     }
 }

@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -18,12 +20,12 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
-import static com.example.android.inventoryapp.R.id.picture;
-import static com.example.android.inventoryapp.R.id.stock;
+import java.io.File;
 
 
 /**
@@ -46,16 +48,16 @@ public class EditorActivity extends AppCompatActivity implements
 
     /** EditText field to enter the product's weight */
     private EditText mPriceEditText;
-
     //TODO set up Picture picker
+
+    /** ImageView field to enter the Product's Image */
+    private ImageView mPictureEditImage;
+
 
     /**
      * EditText field to enter the product's gender
      */
 
-    //private Spinner mGenderSpinner;
-
-    //    private int mGender = ProductEntry.GENDER_UNKNOWN;
 
     /** Boolean flag that keeps track of whether the product has been edited (true) or not (false) */
     private boolean mProductHasChanged = false;
@@ -105,6 +107,7 @@ public class EditorActivity extends AppCompatActivity implements
         mStockEditText = (EditText) findViewById(R.id.edit_product_stock);
         mPriceEditText = (EditText) findViewById(R.id.edit_product_price);
         //TODO add picture management
+        mPictureEditImage = (ImageView) findViewById(R.id.edit_product_picture);
 
         // Setup OnTouchListeners on all the input fields, so we can determine if the user
         // has touched or modified them. This will let us know if there are unsaved changes
@@ -113,6 +116,7 @@ public class EditorActivity extends AppCompatActivity implements
         mStockEditText.setOnTouchListener(mTouchListener);
         mPriceEditText.setOnTouchListener(mTouchListener);
         //TODO add pic management
+        mPictureEditImage.setOnTouchListener(mTouchListener);
     }
 
     /**
@@ -329,6 +333,11 @@ public class EditorActivity extends AppCompatActivity implements
             mStockEditText.setText(Integer.toString(stock));
             mPriceEditText.setText(Integer.toString(price));
             //TODO add picture
+            File pictureFile = new File(picture);
+            if (pictureFile.exists()){
+                Bitmap myBitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath());
+                mPictureEditImage.setImageBitmap(myBitmap);
+            }
         }
     }
 
@@ -339,7 +348,11 @@ public class EditorActivity extends AppCompatActivity implements
         mStockEditText.setText("");
         mPriceEditText.setText("");
         //TODO fis the piture impression
-        //mPictureEditText.setText(ProductEntry.NO_IMAGE); // Select "NO IMAGE"
+        File pictureFile = new File(ProductEntry.NO_IMAGE);
+        if (pictureFile.exists()){
+            Bitmap myBitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath());
+            mPictureEditImage.setImageBitmap(myBitmap);
+        }
     }
 
     /**
