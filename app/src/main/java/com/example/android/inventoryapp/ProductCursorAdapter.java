@@ -1,5 +1,6 @@
 package com.example.android.inventoryapp;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -13,8 +14,10 @@ import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
+
 
 import java.io.File;
 
@@ -129,9 +132,9 @@ public class ProductCursorAdapter extends CursorAdapter {
                 currentStock = currentStock -1;
                 stockTextView.setText(Integer.toString(currentStock));
                 Log.v(LOG_TAG, "made it to reduce stock" + currentStock);
-//                Uri mCurrentProductUri;
-//                ContentValues values = new ContentValues();
-//                values.put(ProductEntry.COLUMN_PRODUCT_STOCK, currentStock);
+                Uri mCurrentProductUri;
+                ContentValues values = new ContentValues();
+                values.put(ProductEntry.COLUMN_PRODUCT_STOCK, currentStock);
 //                Uri newUri = getContentResolver().insert(ProductEntry.CONTENT_URI,values);
 ////from Editor
 //                int rowsAffected = getContentResolver().update(mCurrentProductUri, values, null, null);
@@ -146,8 +149,8 @@ public class ProductCursorAdapter extends CursorAdapter {
 //                    Toast.makeText(this, getString(R.string.editor_update_product_successful),
 //                            Toast.LENGTH_SHORT).show();
 //                }
-
-//until here
+//
+////until here
             }
         });
     }
