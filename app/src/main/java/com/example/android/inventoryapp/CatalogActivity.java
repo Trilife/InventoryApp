@@ -19,7 +19,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
-import com.example.android.inventoryapp.data.ProductDbHelper;
 
 
 /**

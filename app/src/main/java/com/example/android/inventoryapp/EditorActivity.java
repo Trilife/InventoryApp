@@ -12,13 +12,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -27,12 +30,17 @@ import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
 import java.io.File;
 
+import static android.R.attr.data;
+
 
 /**
  * Allows user to create a new product or edit an existing one.
  */
 public class EditorActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
+
+    public static final String LOG_TAG = EditorActivity.class.getSimpleName();
+
 
     /** Identifier for the product data loader */
     private static final int EXISTING_PRODUCT_LOADER = 0;
@@ -191,6 +199,70 @@ public class EditorActivity extends AppCompatActivity implements
         // Inflate the menu options from the res/menu/menu_editor.xml file.
         // This adds menu items to the app bar.
         getMenuInflater().inflate(R.menu.menu_editor, menu);
+
+        // Set up listener for "Decrease Stock"
+        Button decreaseButton = (Button) findViewById(R.id.stock_decrease);
+
+        decreaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText mStockTextView = (EditText) findViewById(R.id.edit_product_stock);
+                int currentStock = Integer.parseInt(mStockTextView.getText().toString().trim());
+
+                //only decrease, if there is stock
+                if(currentStock > 0) {
+                    currentStock = currentStock -1;
+                    mStockTextView.setText(Integer.toString(currentStock));
+                    Toast.makeText(EditorActivity.this, getString(R.string.toast_stock_decrease) + currentStock, Toast.LENGTH_SHORT).show();
+                    mProductHasChanged = true;
+                } else {
+                Toast.makeText(EditorActivity.this, R.string.toast_no_stock , Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        // Set up listener for "Increase Stock"
+        Button increaseButton = (Button) findViewById(R.id.stock_increase);
+
+        increaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText mStockTextView = (EditText) findViewById(R.id.edit_product_stock);
+                int currentStock = Integer.parseInt(mStockTextView.getText().toString().trim());
+                currentStock = currentStock +1;
+                mStockTextView.setText(Integer.toString(currentStock));
+                Toast.makeText(EditorActivity.this, getString(R.string.toast_increase_stock) + currentStock, Toast.LENGTH_SHORT).show();
+                mProductHasChanged = true;
+            }
+        });
+
+        ImageView selectPicture = (ImageView) findViewById(R.id.edit_product_picture);
+
+        selectPicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent pictureIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                pictureIntent.setType("image/*");
+                startActivityForResult(Intent.createChooser(pictureIntent, "Select Picture"),1);
+                //TODO how to get the selected image into the ImageView?
+
+                mProductHasChanged = true;
+            }
+//            @Override
+//            protected void onActivityResult(int requestCode, int resultCode, Intent data)
+//            {
+//                if(resultCode==RESULT_CANCELED)
+//                {
+//                    // action cancelled
+//                }
+//                if(resultCode==RESULT_OK)
+//                {
+//                    Uri selectedPicture = data.getData();
+//                    mPictureEditImage.setImageBitmap(MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedPicture));
+//                }
+//            }
+        });
+
         return true;
     }
 
@@ -201,9 +273,11 @@ public class EditorActivity extends AppCompatActivity implements
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        // If this is a new product, hide the "Delete" menu item.
+        // If this is a new product, hide the "Delete" and "Order" menu item.
         if (mCurrentProductUri == null) {
             MenuItem menuItem = menu.findItem(R.id.action_delete);
+            menuItem.setVisible(false);
+            menuItem = menu.findItem(R.id.action_order);
             menuItem.setVisible(false);
         }
         return true;
@@ -211,7 +285,7 @@ public class EditorActivity extends AppCompatActivity implements
 
     /**
      * Manage the Editor Menu Items
-     * Either SAVE or DELETE Product
+     * Either SAVE or ORDER or DELETE Product
      * @param item
      * @return
      */
@@ -231,6 +305,10 @@ public class EditorActivity extends AppCompatActivity implements
             case R.id.action_delete:
                 // Pop up confirmation dialog for deletion
                 showDeleteConfirmationDialog();
+                return true;
+            // Respond to a click on the "Order" menu option
+            case R.id.action_order:
+                showOrderConfirmationDialog();
                 return true;
             // Respond to a click on the "Up" arrow button in the app bar
             case android.R.id.home:
@@ -327,6 +405,12 @@ public class EditorActivity extends AppCompatActivity implements
             int stock = cursor.getInt(stockColumnIndex);
             int price = cursor.getInt(priceColumnIndex);
             String picture = cursor.getString(pictureColumnIndex);
+
+            //hide Sell Button, if stock is zero
+            Button sellButton = (Button) findViewById(R.id.stock_decrease);
+            if (stock == 0) {
+                sellButton.setVisibility(View.GONE);
+            }
 
             // Update the views on the screen with the values from the database
             mNameEditText.setText(name);
@@ -435,9 +519,65 @@ public class EditorActivity extends AppCompatActivity implements
                         Toast.LENGTH_SHORT).show();
             }
         }
-
         // Close the activity
         finish();
     }
+    /**
+     * Prompt the user to confirm that they want to delete this product.
+     */
+    private void showOrderConfirmationDialog() {
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the postive and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.order_dialog_msg);
+        builder.setPositiveButton(R.string.order, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Order" button, so delete the product.
+                orderProduct();
+                return;
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Cancel" button, so dismiss the dialog
+                // and continue editing the product.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
 
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+    /**
+     * Perform the deletion of the product in the database.
+     */
+    private void orderProduct() {
+        // Only perform the delete if this is an existing product.
+        if (mCurrentProductUri != null) {
+            // get the Product information from the editor_activity
+            String nameString = mNameEditText.getText().toString().trim();
+            Log.v(LOG_TAG, "Product to order: " + nameString);
+
+            //prepare the message text
+            String orderMessage = getString(R.string.order_greetings);
+            orderMessage += "\n\n" + getString(R.string.order_body);
+            orderMessage += "\n\n" + nameString;
+            orderMessage += "\n\n" + getString(R.string.order_address) +"\n";
+
+            //set up the e-mail Intent with subject line and text
+            Intent intent = new Intent(Intent.ACTION_SENDTO);
+            intent.setData(Uri.parse("mailto:"));
+            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.order_subject) + nameString );
+            intent.putExtra(Intent.EXTRA_TEXT, orderMessage);
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                //send off the email
+                startActivity(intent);
+            }
+        }
+        // Close the activity
+        finish();
+    }
 }

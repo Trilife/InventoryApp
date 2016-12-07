@@ -32,6 +32,15 @@
     <string name="cancel">Cancel</string>
     <string name="editor_delete_product_failed">Error with deleting Product</string>
     <string name="editor_delete_product_successful">Product Deleted</string>
+    <string name="order_dialog_msg">Sure you want to order this Product?</string>
+    <string name="order">Order</string>
+    <string name="order_greetings">Greetings from My Happy Store</string>
+    <string name="order_body">Please accept our order for the following product:</string>
+    <string name="order_address">Our address is on your records.</string>
+    <string name="order_subject">"Order for: "</string>
+    <string name="toast_increase_stock">"Item Increased to "</string>
+    <string name="toast_no_stock">Cannot sell, no Stock</string>
+    <string name="toast_stock_decrease">"Item Decreased to "</string>
 
 
 </resources>

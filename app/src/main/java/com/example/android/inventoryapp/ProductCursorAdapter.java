@@ -2,26 +2,21 @@ package com.example.android.inventoryapp;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.android.inventoryapp.data.ProductContract;
-import com.example.android.inventoryapp.data.ProductDbHelper;
+import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
 import java.io.File;
-
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
-import static android.provider.CalendarContract.CalendarCache.URI;
 
 /**
  * {@link ProductCursorAdapter} is an adapter for a list or grid view
@@ -71,17 +66,19 @@ public class ProductCursorAdapter extends CursorAdapter {
      */
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
+
+
         // Find individual views that we want to modify in the list item layout
         TextView nameTextView = (TextView) view.findViewById(R.id.name);
-        TextView stockTextView = (TextView) view.findViewById(R.id.stock);
+        final TextView stockTextView = (TextView) view.findViewById(R.id.stock);
         TextView priceTextView = (TextView) view.findViewById(R.id.price);
         ImageView pictureImageView = (ImageView) view.findViewById(R.id.edit_product_picture);
 
         // Find the columns of product attributes that we're interested in
-        int nameColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME);
-        int stockColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_STOCK);
-        int priceColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE);
-        int pictureColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_PICTURE);
+        int nameColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_NAME);
+        int stockColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_STOCK);
+        int priceColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE);
+        int pictureColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PICTURE);
 
         // Read the product attributes from the Cursor for the current product
         String productName = cursor.getString(nameColumnIndex);
@@ -111,9 +108,66 @@ public class ProductCursorAdapter extends CursorAdapter {
         if (pictureFile.exists()){
             Bitmap myBitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath());
             pictureImageView.setImageBitmap(myBitmap);
+        } else {
+            Log.v(LOG_TAG, "no picture file exists");
         }
         //pictureImageView.setImageURI(Uri.parse(new File(productPicture).toString()));
         //pictureImageView.setImageResource(productPicture);
+
+        //hide Sell Button, if stock is zero
+        Button sellButton = (Button) view.findViewById(R.id.sell_item);
+        if (productStock == 0) {
+            sellButton.setVisibility(View.GONE);
+        }
+
+        sellButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //long rowId = Long.valueOf(stockTextView.getTag().toString());
+                //String filter = "_ID=" + rowId;
+                int currentStock = Integer.parseInt(stockTextView.getText().toString());
+                currentStock = currentStock -1;
+                stockTextView.setText(Integer.toString(currentStock));
+                Log.v(LOG_TAG, "made it to reduce stock" + currentStock);
+//                Uri mCurrentProductUri;
+//                ContentValues values = new ContentValues();
+//                values.put(ProductEntry.COLUMN_PRODUCT_STOCK, currentStock);
+//                Uri newUri = getContentResolver().insert(ProductEntry.CONTENT_URI,values);
+////from Editor
+//                int rowsAffected = getContentResolver().update(mCurrentProductUri, values, null, null);
+//
+//                // Show a toast message depending on whether or not the update was successful.
+//                if (rowsAffected == 0) {
+//                    // If no rows were affected, then there was an error with the update.
+//                    Toast.makeText(this, getString(R.string.editor_update_product_failed),
+//                            Toast.LENGTH_SHORT).show();
+//                } else {
+//                    // Otherwise, the update was successful and we can display a toast.
+//                    Toast.makeText(this, getString(R.string.editor_update_product_successful),
+//                            Toast.LENGTH_SHORT).show();
+//                }
+
+//until here
+            }
+        });
     }
 }
 
+// saleButton.setOnClickListener(new View.OnClickListener() {
+//@Override
+//public void onClick(View view) {
+//        long rowId = Long.valueOf(itemQuantity.getTag().toString());
+//        String filter = "_ID=" + rowId;
+//        int saleCurrentQuantity = Integer.valueOf(itemQuantity.getText().toString());
+//        if (saleCurrentQuantity > 0) {
+//        mDbHelper = new InventoryDbHelper(context);
+//        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+//        int saleNewQuantity = saleCurrentQuantity - 1;
+//        ContentValues updateValues = new ContentValues();
+//        updateValues.put(InventoryContract.InventoryEntry.COLUMN_PRODUCT_QUANTITY, saleNewQuantity);
+//        db.update(InventoryContract.InventoryEntry.TABLE_NAME, updateValues, filter, null);
+//        itemQuantity.setText(String.valueOf(saleNewQuantity));
+//        db.close();
+//        }
+//        }
+//        });
