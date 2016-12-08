@@ -68,7 +68,7 @@ public class ProductCursorAdapter extends CursorAdapter {
      *                correct row.
      */
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, final Context context, Cursor cursor) {
 
 
         // Find individual views that we want to modify in the list item layout
@@ -90,11 +90,8 @@ public class ProductCursorAdapter extends CursorAdapter {
         int productStock = cursor.getInt(stockColumnIndex);
         int productPrice = cursor.getInt(priceColumnIndex);
         String productPicture = cursor.getString(pictureColumnIndex);
-
-
-
-        Log.v(LOG_TAG, "productPicture: " + productPicture);
-        Log.v(LOG_TAG, "Picture URI: " + Uri.parse(new File(productPicture).toString()));
+        Log.v(LOG_TAG, "in bindView product Picture path: " + productPicture);
+        Log.v(LOG_TAG, "in bindView picture URI: " + Uri.parse(new File(productPicture).toString()));
 
         //TODO this is where we would test for eventual discrepancies
         // If the product breed is empty string or null, then use some default text
@@ -135,6 +132,9 @@ public class ProductCursorAdapter extends CursorAdapter {
                 Uri mCurrentProductUri;
                 ContentValues values = new ContentValues();
                 values.put(ProductEntry.COLUMN_PRODUCT_STOCK, currentStock);
+//                context.getContentResolver().update(other data here);
+//                        context.getString(other_data_here);
+//
 //                Uri newUri = getContentResolver().insert(ProductEntry.CONTENT_URI,values);
 ////from Editor
 //                int rowsAffected = getContentResolver().update(mCurrentProductUri, values, null, null);

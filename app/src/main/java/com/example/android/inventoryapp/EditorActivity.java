@@ -12,7 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.provider.MediaStore.Images;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -29,8 +29,8 @@ import android.widget.Toast;
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
 import java.io.File;
+import java.io.IOException;
 
-import static android.R.attr.data;
 
 
 /**
@@ -60,6 +60,9 @@ public class EditorActivity extends AppCompatActivity implements
 
     /** ImageView field to enter the Product's Image */
     private ImageView mPictureEditImage;
+
+    /** URI that will contain the path to the chosen image */
+    private Uri pictureUri;
 
 
     /**
@@ -137,14 +140,15 @@ public class EditorActivity extends AppCompatActivity implements
         String stockString = mStockEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
         //TODO add pic
-        String pictureString = ProductEntry.NO_IMAGE;
+        String pictureString = pictureUri.toString();
 
         // Check if this is supposed to be a new product
         // and check if all the fields in the editor are blank
         //TODO add && pictureString == ProductEntry.NO_IMAGE
         if (mCurrentProductUri == null &&
                 TextUtils.isEmpty(nameString) && TextUtils.isEmpty(stockString) &&
-                TextUtils.isEmpty(priceString) &&  pictureString == ProductEntry.NO_IMAGE) {
+                TextUtils.isEmpty(priceString)) {
+            //TODO   may need to deal with this expression &&  pictureString == ProductEntry.NO_IMAGE
             // Since no fields were modified, we can return early without creating a new product.
             // No need to create ContentValues and no need to do any ContentProvider operations.
             return;
@@ -264,6 +268,32 @@ public class EditorActivity extends AppCompatActivity implements
         });
 
         return true;
+    }
+
+    /** manage the returned path after selecting the picture
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if(resultCode==RESULT_CANCELED)
+        {
+            // action cancelled
+        }
+        if(resultCode==RESULT_OK)
+        {
+            Uri selectedPicture = data.getData();
+            pictureUri = selectedPicture;
+
+            try {
+                mPictureEditImage.setImageBitmap(Images.Media.getBitmap(this.getContentResolver(), selectedPicture ));
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "exception ", e);
+            }
+        }
     }
 
     /**
