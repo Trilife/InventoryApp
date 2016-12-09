@@ -39,14 +39,12 @@ public class CatalogActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog);
-        Log.v(LOG_TAG, "In OnCreate");
         // Setup FAB to open EditorActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
-                Log.v(LOG_TAG, "starting Float Button NEW PET");
                 startActivity(intent);
             }
         });
@@ -66,14 +64,12 @@ public class CatalogActivity extends AppCompatActivity implements
         // There is no product data yet (until the loader finishes) so pass in null for the Cursor.
         mCursorAdapter = new ProductCursorAdapter(this, null);
         productListView.setAdapter(mCursorAdapter);
-        Log.v(LOG_TAG, "setting up OnItemClick Listener, just before entering");
 
         // Setup the item click listener
         productListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 // Create new intent to go to {@link EditorActivity}
-                Log.v(LOG_TAG, "Touched the list item");
 
                 Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
 
@@ -86,7 +82,6 @@ public class CatalogActivity extends AppCompatActivity implements
 
                 // Set the URI on the data field of the intent
                 intent.setData(currentProductUri);
-                Log.v(LOG_TAG, "Starting Edit Pet");
 
                 // Launch the {@link EditorActivity} to display the data for the current product.
                 startActivity(intent);

@@ -142,7 +142,7 @@ public class ProductProvider extends ContentProvider {
 
         // Check there is a valid price
         Integer price = values.getAsInteger(ProductEntry.COLUMN_PRODUCT_PRICE);
-        if (price == null || price <= 0) {
+        if (price == null || price < 0) {
             throw new IllegalArgumentException("Product requires valid price");
         }
 
@@ -218,7 +218,7 @@ public class ProductProvider extends ContentProvider {
         if (values.containsKey(ProductEntry.COLUMN_PRODUCT_PRICE)) {
             // Check that the weight is greater than or equal to 0
             Integer price = values.getAsInteger(ProductEntry.COLUMN_PRODUCT_PRICE);
-            if (price == null || price <= 0) {
+            if (price == null || price < 0) {
                 throw new IllegalArgumentException("Product requires price above 0");
             }
         }

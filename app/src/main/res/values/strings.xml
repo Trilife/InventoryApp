@@ -8,8 +8,8 @@
     <string name="hint_supplier_name">Enter Supplier Name</string>
     <string name="hint_supplier_email">Enter Supplier Email</string>
     <string name="hint_product_name">Enter Product Name</string>
-    <string name="hint_product_price">Enter Product Price</string>
-    <string name="hint_product_stock">Enter Initial Stock Quantity</string>
+    <string name="hint_product_price">Enter Price</string>
+    <string name="hint_product_stock">Enter Stock Quantity</string>
     <string name="action_reduce_stock">Reduce Stock</string>
     <string name="action_increase_stock">Increase Stock</string>
     <string name="action_save">Save</string>
@@ -17,7 +17,7 @@
     <string name="action_delete_all_entries">Delete All Entries</string>
     <string name="action_delete">Delete Product</string>
     <string name="action_order">Order Product</string>
-    <string name="unknown_stock">Unkown Stock Qty</string>
+    <string name="unknown_stock">Unknown Stock Qty</string>
     <string name="editor_activity_title_new_product">Add New Product</string>
     <string name="editor_activity_title_edit_product">Edit Product</string>
     <string name="editor_insert_product_failed">Insert Product Failed</string>
@@ -41,6 +41,7 @@
     <string name="toast_increase_stock">"Item Increased to "</string>
     <string name="toast_no_stock">Cannot sell, no Stock</string>
     <string name="toast_stock_decrease">"Item Decreased to "</string>
+    <string name="needs_name">Needs Name</string>
 
 
 </resources>

@@ -11,8 +11,8 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore.Images;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -29,9 +29,6 @@ import android.widget.Toast;
 import com.example.android.inventoryapp.data.ProductContract.ProductEntry;
 
 import java.io.File;
-import java.io.IOException;
-
-
 
 /**
  * Allows user to create a new product or edit an existing one.
@@ -42,35 +39,45 @@ public class EditorActivity extends AppCompatActivity implements
     public static final String LOG_TAG = EditorActivity.class.getSimpleName();
 
 
-    /** Identifier for the product data loader */
+    /**
+     * Identifier for the product data loader
+     */
     private static final int EXISTING_PRODUCT_LOADER = 0;
 
-    /** Content URI for the existing product (null if it's a new product) */
+    /**
+     * Content URI for the existing product (null if it's a new product)
+     */
     private Uri mCurrentProductUri;
 
-    /** EditText field to enter the product's name */
+    /**
+     * EditText field to enter the product's name
+     */
     private EditText mNameEditText;
 
-    /** EditText field to enter the product's breed */
+    /**
+     * EditText field to enter the product's breed
+     */
     private EditText mStockEditText;
 
-    /** EditText field to enter the product's weight */
+    /**
+     * EditText field to enter the product's weight
+     */
     private EditText mPriceEditText;
     //TODO set up Picture picker
 
-    /** ImageView field to enter the Product's Image */
+    /**
+     * ImageView field to enter the Product's Image
+     */
     private ImageView mPictureEditImage;
 
-    /** URI that will contain the path to the chosen image */
+    /**
+     * URI that will contain the path to the chosen image
+     */
     private Uri pictureUri;
 
-
     /**
-     * EditText field to enter the product's gender
+     * Boolean flag that keeps track of whether the product has been edited (true) or not (false)
      */
-
-
-    /** Boolean flag that keeps track of whether the product has been edited (true) or not (false) */
     private boolean mProductHasChanged = false;
 
     /**
@@ -117,7 +124,6 @@ public class EditorActivity extends AppCompatActivity implements
         mNameEditText = (EditText) findViewById(R.id.edit_product_name);
         mStockEditText = (EditText) findViewById(R.id.edit_product_stock);
         mPriceEditText = (EditText) findViewById(R.id.edit_product_price);
-        //TODO add picture management
         mPictureEditImage = (ImageView) findViewById(R.id.edit_product_picture);
 
         // Setup OnTouchListeners on all the input fields, so we can determine if the user
@@ -126,7 +132,6 @@ public class EditorActivity extends AppCompatActivity implements
         mNameEditText.setOnTouchListener(mTouchListener);
         mStockEditText.setOnTouchListener(mTouchListener);
         mPriceEditText.setOnTouchListener(mTouchListener);
-        //TODO add pic management
         mPictureEditImage.setOnTouchListener(mTouchListener);
     }
 
@@ -139,19 +144,30 @@ public class EditorActivity extends AppCompatActivity implements
         String nameString = mNameEditText.getText().toString().trim();
         String stockString = mStockEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
-        //TODO add pic
-        String pictureString = pictureUri.toString();
 
-        // Check if this is supposed to be a new product
-        // and check if all the fields in the editor are blank
-        //TODO add && pictureString == ProductEntry.NO_IMAGE
+        String pictureString = "";
+        if (pictureUri != null) {
+            pictureString = pictureUri.toString();
+        }
+        Log.v(LOG_TAG, "saveProduct pictureString: " + pictureString);
+
+        // Check if this is supposed to be a new product and all the fields are blank
         if (mCurrentProductUri == null &&
                 TextUtils.isEmpty(nameString) && TextUtils.isEmpty(stockString) &&
-                TextUtils.isEmpty(priceString)) {
-            //TODO   may need to deal with this expression &&  pictureString == ProductEntry.NO_IMAGE
-            // Since no fields were modified, we can return early without creating a new product.
-            // No need to create ContentValues and no need to do any ContentProvider operations.
+                TextUtils.isEmpty(priceString) && pictureUri == null) {
+            //New product saved without changes. Don't create a database entry
             return;
+        }
+        //Test for valid data in the Editor, prior to saving or replace by 0 value
+        if (TextUtils.isEmpty(nameString)) {
+            nameString = getString(R.string.needs_name);
+        }
+        int zero = 0;
+        if (TextUtils.isEmpty(stockString)) {
+            stockString = new Integer(0).toString();
+        }
+        if (TextUtils.isEmpty(priceString)) {
+            priceString = new Integer(0).toString();
         }
 
         // Create a ContentValues object where column names are the keys,
@@ -214,13 +230,13 @@ public class EditorActivity extends AppCompatActivity implements
                 int currentStock = Integer.parseInt(mStockTextView.getText().toString().trim());
 
                 //only decrease, if there is stock
-                if(currentStock > 0) {
-                    currentStock = currentStock -1;
+                if (currentStock > 0) {
+                    currentStock -= 1;
                     mStockTextView.setText(Integer.toString(currentStock));
                     Toast.makeText(EditorActivity.this, getString(R.string.toast_stock_decrease) + currentStock, Toast.LENGTH_SHORT).show();
                     mProductHasChanged = true;
                 } else {
-                Toast.makeText(EditorActivity.this, R.string.toast_no_stock , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EditorActivity.this, R.string.toast_no_stock, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -233,7 +249,7 @@ public class EditorActivity extends AppCompatActivity implements
             public void onClick(View view) {
                 EditText mStockTextView = (EditText) findViewById(R.id.edit_product_stock);
                 int currentStock = Integer.parseInt(mStockTextView.getText().toString().trim());
-                currentStock = currentStock +1;
+                currentStock += 1;
                 mStockTextView.setText(Integer.toString(currentStock));
                 Toast.makeText(EditorActivity.this, getString(R.string.toast_increase_stock) + currentStock, Toast.LENGTH_SHORT).show();
                 mProductHasChanged = true;
@@ -245,11 +261,16 @@ public class EditorActivity extends AppCompatActivity implements
         selectPicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent pictureIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                pictureIntent.setType("image/*");
-                startActivityForResult(Intent.createChooser(pictureIntent, "Select Picture"),1);
-                //TODO how to get the selected image into the ImageView?
+                Intent pictureIntent;
 
+                if (Build.VERSION.SDK_INT < 19) {
+                    pictureIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                } else {
+                    pictureIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    pictureIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                }
+                pictureIntent.setType("image/*");
+                startActivityForResult(Intent.createChooser(pictureIntent, "Select Picture"), 1);
                 mProductHasChanged = true;
             }
 //            @Override
@@ -270,29 +291,24 @@ public class EditorActivity extends AppCompatActivity implements
         return true;
     }
 
-    /** manage the returned path after selecting the picture
+    /**
+     * manage the returned path after selecting the picture
      *
      * @param requestCode
      * @param resultCode
      * @param data
      */
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        if(resultCode==RESULT_CANCELED)
-        {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_CANCELED) {
             // action cancelled
         }
-        if(resultCode==RESULT_OK)
-        {
+        if (resultCode == RESULT_OK) {
             Uri selectedPicture = data.getData();
             pictureUri = selectedPicture;
+            Log.v(LOG_TAG, "file path from OnActivityResult pictureUri: " + pictureUri);
 
-            try {
-                mPictureEditImage.setImageBitmap(Images.Media.getBitmap(this.getContentResolver(), selectedPicture ));
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "exception ", e);
-            }
+            mPictureEditImage.setImageURI(pictureUri);
         }
     }
 
@@ -316,6 +332,7 @@ public class EditorActivity extends AppCompatActivity implements
     /**
      * Manage the Editor Menu Items
      * Either SAVE or ORDER or DELETE Product
+     *
      * @param item
      * @return
      */
@@ -435,22 +452,23 @@ public class EditorActivity extends AppCompatActivity implements
             int stock = cursor.getInt(stockColumnIndex);
             int price = cursor.getInt(priceColumnIndex);
             String picture = cursor.getString(pictureColumnIndex);
-
-            //hide Sell Button, if stock is zero
-            Button sellButton = (Button) findViewById(R.id.stock_decrease);
-            if (stock == 0) {
-                sellButton.setVisibility(View.GONE);
-            }
+            // Uri pictureUri = Uri.parse(picture);
+            pictureUri = Uri.parse(picture);
+            Log.v(LOG_TAG, "onLoadFinished picture: " + picture);
 
             // Update the views on the screen with the values from the database
             mNameEditText.setText(name);
             mStockEditText.setText(Integer.toString(stock));
             mPriceEditText.setText(Integer.toString(price));
-            //TODO add picture
-            File pictureFile = new File(picture);
-            if (pictureFile.exists()){
-                Bitmap myBitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath());
-                mPictureEditImage.setImageBitmap(myBitmap);
+            mPictureEditImage.setImageURI(pictureUri);
+            Log.v(LOG_TAG, "onLoadFinished picture: " + picture);
+            Log.v(LOG_TAG, "onLoadFinished pictureURI: " + pictureUri);
+
+
+            //hide Sell Button, if stock is zero
+            Button sellButton = (Button) findViewById(R.id.stock_decrease);
+            if (stock == 0) {
+                sellButton.setVisibility(View.GONE);
             }
         }
     }
@@ -461,9 +479,9 @@ public class EditorActivity extends AppCompatActivity implements
         mNameEditText.setText("");
         mStockEditText.setText("");
         mPriceEditText.setText("");
-        //TODO fis the piture impression
+        //TODO fis the picture impression
         File pictureFile = new File(ProductEntry.NO_IMAGE);
-        if (pictureFile.exists()){
+        if (pictureFile.exists()) {
             Bitmap myBitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath());
             mPictureEditImage.setImageBitmap(myBitmap);
         }
@@ -503,7 +521,7 @@ public class EditorActivity extends AppCompatActivity implements
      */
     private void showDeleteConfirmationDialog() {
         // Create an AlertDialog.Builder and set the message, and click listeners
-        // for the postivie and negative buttons on the dialog.
+        // for the positive and negative buttons on the dialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.delete_dialog_msg);
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
@@ -552,6 +570,7 @@ public class EditorActivity extends AppCompatActivity implements
         // Close the activity
         finish();
     }
+
     /**
      * Prompt the user to confirm that they want to delete this product.
      */
@@ -581,6 +600,7 @@ public class EditorActivity extends AppCompatActivity implements
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
+
     /**
      * Perform the deletion of the product in the database.
      */
@@ -595,12 +615,12 @@ public class EditorActivity extends AppCompatActivity implements
             String orderMessage = getString(R.string.order_greetings);
             orderMessage += "\n\n" + getString(R.string.order_body);
             orderMessage += "\n\n" + nameString;
-            orderMessage += "\n\n" + getString(R.string.order_address) +"\n";
+            orderMessage += "\n\n" + getString(R.string.order_address) + "\n";
 
             //set up the e-mail Intent with subject line and text
             Intent intent = new Intent(Intent.ACTION_SENDTO);
             intent.setData(Uri.parse("mailto:"));
-            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.order_subject) + nameString );
+            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.order_subject) + nameString);
             intent.putExtra(Intent.EXTRA_TEXT, orderMessage);
             if (intent.resolveActivity(getPackageManager()) != null) {
                 //send off the email
